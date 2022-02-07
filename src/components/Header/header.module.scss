@@ -1,0 +1,19 @@
+.headerContainer {
+  height: 6.5625rem;
+}
+
+.headerContent {
+  max-width: 700px;
+  height: 6.5625rem;
+
+  margin: 0 auto;
+
+  padding: 0 2rem;
+
+  display: flex;
+  align-items: center;
+
+  a {
+    display: block;
+  }
+}

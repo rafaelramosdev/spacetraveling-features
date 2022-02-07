@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --black-800: #1a1d23;
+
+  --white-100: #f8f8f8;
+
+  --gray-200: #d7d7d7;
+  --gray-300: #bbbbbb;
+
+  --pink-500: #ff57b2;
+}
+
+@media (max-width: 1080px) { // +/- iPad size
+  html {
+    font-size: 93.75%; // 15px
+  }
+}
+
+@media (max-width: 720px) { // mobile sizes mainly
+  html {
+    font-size: 87.5%; // 14px
+  }
+}
+
+body {
+  background: var(--black-800);
+}
+
+body, input, textarea, select, button {
+  font: 600 1.125rem "Inter", sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit; // serves to make the tag "a" assume the color of the element/text of the element around it (parent element)
+  text-decoration: none;
+}
