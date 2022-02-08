@@ -1,4 +1,6 @@
-export default async (_, res): Promise<void> => {
+import { NextApiResponse } from 'next';
+
+export default async (res: NextApiResponse): Promise<void> => {
   res.clearPreviewData();
 
   res.writeHead(307, { Location: '/' });
