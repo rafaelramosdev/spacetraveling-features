@@ -205,7 +205,7 @@ export const getStaticProps: GetStaticProps = async ({
   const { slug } = params;
 
   const response = await prismic.getByUID('post', String(slug), {
-    ref: previewData?.ref || null,
+    ref: previewData?.ref ?? null,
   });
 
   const contents = response.data.content.map(content => {
