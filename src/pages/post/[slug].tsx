@@ -42,12 +42,29 @@ interface Post {
   };
 }
 
+type PrevNextPost = {
+  uid: string;
+  data: {
+    title: string;
+  };
+};
+
+interface Navigation {
+  prevPost: PrevNextPost[];
+  nextPost: PrevNextPost[];
+}
+
 interface PostProps {
   post: Post;
   preview: boolean;
+  navigation: Navigation;
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  navigation,
+}: PostProps): JSX.Element {
   const { isFallback } = useRouter();
 
   if (isFallback) {
@@ -144,19 +161,29 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
 
         <div className={styles.footerContainer}>
           <div className={styles.buttonsContainer}>
-            <Link href="/">
-              <a>
-                <span>Como utilizar Hooks</span>
-                Post anterior
-              </a>
-            </Link>
+            <div className={` ${styles.button} ${styles.left}`}>
+              {navigation.prevPost.length > 0 && (
+                <>
+                  <span>{navigation.prevPost[0].data.title}</span>
 
-            <Link href="/">
-              <a>
-                <span>Criando um app CRA do Zero</span>
-                Próximo post
-              </a>
-            </Link>
+                  <Link href={`/post/${navigation.prevPost[0].uid}`}>
+                    <a>Post anterior</a>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            <div className={`${styles.button} ${styles.right}`}>
+              {navigation.nextPost.length > 0 && (
+                <>
+                  <span>{navigation.nextPost[0].data.title}</span>
+
+                  <Link href={`/post/${navigation.nextPost[0].uid}`}>
+                    <a>Próximo post</a>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
 
           <div className={styles.commentsContainer}>
@@ -208,6 +235,24 @@ export const getStaticProps: GetStaticProps = async ({
     ref: previewData?.ref ?? null,
   });
 
+  const prevPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {
+      pageSize: 1,
+      after: `${response.id}`,
+      orderings: '[document.last_publication_date desc]',
+    }
+  );
+
+  const nextPost = await prismic.query(
+    [Prismic.predicates.at('document.type', 'post')],
+    {
+      pageSize: 1,
+      after: `${response.id}`,
+      orderings: '[document.last_publication_date]',
+    }
+  );
+
   const contents = response.data.content.map(content => {
     const bodys = content.body.map(body => {
       return body;
@@ -238,6 +283,10 @@ export const getStaticProps: GetStaticProps = async ({
     props: {
       post,
       preview,
+      navigation: {
+        prevPost: prevPost?.results,
+        nextPost: nextPost?.results,
+      },
     },
     revalidate: 60 * 30, // 30 minutes
   };

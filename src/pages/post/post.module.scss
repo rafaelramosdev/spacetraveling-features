@@ -175,23 +175,10 @@
 
     margin-top: 4rem;
 
-    a {
-      display: flex;
-      flex-direction: column;
-
-      border: 0;
-
-      font-size: 1rem;
-      font-weight: 600;
-      line-height: 1.1875rem;
-
-      letter-spacing: -0.5px;
-
-      color: var(--pink-500);
-
-      background: transparent;
-
+    .button {
       span {
+        display: block;
+
         margin-bottom: 0.5rem;
 
         font-size: 1.125rem;
@@ -203,19 +190,40 @@
         color: var(--white-100);
       }
 
-      & + a {
-        text-align: right;
-      }
+      a {
+        display: flex;
+        flex-direction: column;
 
-      transition: filter 0.2s;
+        border: 0;
 
-      &:hover {
-        filter: brightness(0.8);
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.1875rem;
+
+        letter-spacing: -0.5px;
+
+        color: var(--pink-500);
+
+        background: transparent;
+
+        transition: filter 0.2s;
+
+        &:hover {
+          filter: brightness(0.8);
+        }
       }
     }
 
-    a:first-child {
-      text-align: left;
+    .right {
+      a {
+        text-align: right;
+      }
+    }
+
+    .left {
+      a {
+        text-align: left;
+      }
     }
   }
 
