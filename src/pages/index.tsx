@@ -16,6 +16,8 @@ import { FiCalendar, FiUser } from 'react-icons/fi';
 
 import { getPrismicClient } from '../services/prismic';
 
+import ExitPreviewMode from '../components/ExitPreviewMode';
+
 import commonStyles from '../styles/common.module.scss';
 
 import styles from './home.module.scss';
@@ -143,6 +145,8 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
               Carregar mais posts
             </button>
           )}
+
+          <ExitPreviewMode />
         </section>
       </main>
     </>
@@ -157,6 +161,7 @@ export const getStaticProps: GetStaticProps = async () => {
     {
       fetch: ['post.title', 'post.subtitle', 'post.author'], // 'fetch' is basically what data I want to fetch from the posts
       pageSize: 1,
+      orderings: '[document.last_publication_date desc]',
     }
   );
 
