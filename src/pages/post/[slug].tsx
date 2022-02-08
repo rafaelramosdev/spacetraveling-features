@@ -4,9 +4,9 @@ import { useRouter } from 'next/router';
 
 import Head from 'next/head';
 
-import Prismic from '@prismicio/client';
+import Link from 'next/link';
 
-import { RichText } from 'prismic-dom';
+import Prismic from '@prismicio/client';
 
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 
@@ -17,6 +17,8 @@ import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../../services/prismic';
 
 import Header from '../../components/Header';
+import Comments from '../../components/Comments';
+import ExitPreviewMode from '../../components/ExitPreviewMode';
 
 import commonStyles from '../../styles/common.module.scss';
 
@@ -24,6 +26,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -41,9 +44,10 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, preview }: PostProps): JSX.Element {
   const { isFallback } = useRouter();
 
   if (isFallback) {
@@ -54,13 +58,17 @@ export default function Post({ post }: PostProps): JSX.Element {
     );
   }
 
-  const formattedDate = format(
-    new Date(post.first_publication_date),
-    'dd MMM yyyy',
-    {
+  function formattedDate(date: string): string {
+    return format(new Date(date), 'dd MMM yyyy', {
       locale: ptBR,
-    }
-  );
+    });
+  }
+
+  function formattedDateTime(dateTime: string): string {
+    return format(new Date(dateTime), "dd MMM yyyy', às' k':'m", {
+      locale: ptBR,
+    });
+  }
 
   const totalWords = post.data.content.reduce((total, content) => {
     let t = total;
@@ -69,12 +77,16 @@ export default function Post({ post }: PostProps): JSX.Element {
 
     const words = content.body.map(body => body.text.split(' ').length);
 
+    // eslint-disable-next-line no-return-assign
     words.map(word => (t += word));
 
     return t;
   }, 0);
 
   const estimatedTime = Math.ceil(totalWords / 200);
+
+  const isPostEdited =
+    post.first_publication_date !== post.last_publication_date;
 
   return (
     <>
@@ -95,7 +107,7 @@ export default function Post({ post }: PostProps): JSX.Element {
           <div className={styles.postInfo}>
             <div className={styles.createdAt}>
               <FiCalendar color="#bbbbbb" />
-              <time>{formattedDate}</time>
+              <time>{formattedDate(post.first_publication_date)}</time>
             </div>
 
             <div className={styles.author}>
@@ -108,6 +120,12 @@ export default function Post({ post }: PostProps): JSX.Element {
               <span>{estimatedTime} min</span>
             </div>
           </div>
+
+          {isPostEdited && (
+            <span className={styles.postEditingInfo}>
+              * editado em {formattedDateTime(post.last_publication_date)}
+            </span>
+          )}
 
           <div className={styles.contentContainer}>
             {post.data.content.map(content => {
@@ -122,6 +140,30 @@ export default function Post({ post }: PostProps): JSX.Element {
               );
             })}
           </div>
+        </div>
+
+        <div className={styles.footerContainer}>
+          <div className={styles.buttonsContainer}>
+            <Link href="/">
+              <a>
+                <span>Como utilizar Hooks</span>
+                Post anterior
+              </a>
+            </Link>
+
+            <Link href="/">
+              <a>
+                <span>Criando um app CRA do Zero</span>
+                Próximo post
+              </a>
+            </Link>
+          </div>
+
+          <div className={styles.commentsContainer}>
+            <Comments />
+          </div>
+
+          {preview && <ExitPreviewMode />}
         </div>
       </section>
     </>
@@ -153,12 +195,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
 
   const { slug } = params;
 
-  const response = await prismic.getByUID('post', String(slug), {});
+  const response = await prismic.getByUID('post', String(slug), {
+    ref: previewData?.ref || null,
+  });
 
   const contents = response.data.content.map(content => {
     const bodys = content.body.map(body => {
@@ -174,6 +222,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -188,6 +237,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
+      preview,
     },
     revalidate: 60 * 30, // 30 minutes
   };
