@@ -17,7 +17,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../../services/prismic';
 
 import Header from '../../components/Header';
-import Comments from '../../components/Comments';
+import UtterancesComments from '../../components/Comments';
 import ExitPreviewMode from '../../components/ExitPreviewMode';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -187,7 +187,7 @@ export default function Post({
           </div>
 
           <div className={styles.commentsContainer}>
-            <Comments />
+            <UtterancesComments />
           </div>
 
           {preview && <ExitPreviewMode />}
